@@ -14,7 +14,7 @@ export type Prompt = {
   name: string;
   content: string;
   description: string;
-  category?: string;
+  category: string[];
 };
 
 // 简化的提示词信息，用于列表展示
@@ -22,7 +22,7 @@ export type PromptInfo = {
   id: string;
   name: string;
   description: string;
-  category?: string;
+  category: string[];
 };
 
 export interface PaginationOptions {
@@ -153,7 +153,7 @@ export class NotionService {
           // @ts-ignore
           const descriptionProperty = page.properties.Description?.rich_text;
           // @ts-ignore
-          const categoryProperty = page.properties.Category?.select;
+          const categoryProperty = page.properties.Category?.multi_select;
           
           if (!nameProperty || nameProperty.length === 0) {
             this.log(LogLevel.WARN, `跳过无名称的提示词 (ID: ${page.id})`);
@@ -163,14 +163,24 @@ export class NotionService {
           const name = nameProperty[0].plain_text;
           const content = contentProperty?.map((text: any) => text.plain_text).join('') || '';
           const description = descriptionProperty?.map((text: any) => text.plain_text).join('') || '';
-          const category = categoryProperty?.name || undefined;
+          
+          // 处理多选类别
+          let categories: string[] = [];
+          if (categoryProperty && Array.isArray(categoryProperty)) {
+            categories = categoryProperty.map((item: any) => item.name);
+          }
+          
+          // 如果没有类别，添加默认类别
+          if (categories.length === 0) {
+            categories = ["未分类"];
+          }
           
           prompts.push({
             id: page.id,
             name,
             content,
             description,
-            category,
+            category: categories,
           });
         } catch (error) {
           this.log(LogLevel.ERROR, `处理提示词时出错: ${error}`);

@@ -11,6 +11,7 @@
 - **搜索功能**：支持在名称、描述和内容中搜索提示词
 - **缓存系统**：内置缓存机制，优化性能，减少 API 调用
 - **可配置**：支持通过环境变量或命令行参数进行配置
+- **处理模式**：支持多种提示词处理方式，避免LLM越界处理
 
 ## 安装
 
@@ -32,6 +33,10 @@ npm run build
 
 - **NOTION_API_KEY**: 你的 Notion API 密钥
 - **NOTION_DATABASE_ID**: 存储提示词的 Notion 数据库 ID
+- **PROMPT_HANDLING_MODE**: 提示词组合后的处理模式（可选，默认为 return_only）
+  - `return_only`: 仅返回组合后的提示词文本，不做额外处理
+  - `process_locally`: 指示客户端使用当前上下文的LLM处理提示词
+  - `call_external_api`: 服务器调用外部API处理提示词（需另行配置）
 
 可以通过环境变量或命令行参数提供：
 
@@ -41,12 +46,13 @@ export NOTION_API_KEY="your_api_key_here"
 export NOTION_DATABASE_ID="your_database_id_here"
 export LOG_LEVEL="INFO"  # 可选，默认为 INFO
 export CACHE_EXPIRY_TIME="300000"  # 可选，默认为 5 分钟 (300000ms)
+export PROMPT_HANDLING_MODE="return_only"  # 可选，默认为 return_only
 
 # 启动服务器
 npm start
 
 # 或使用命令行参数
-npm start -- --notion_api_key=your_api_key_here --notion_database_id=your_database_id_here --log_level=INFO
+npm start -- --notion_api_key=your_api_key_here --notion_database_id=your_database_id_here --prompt_handling_mode=return_only
 ```
 
 ## Notion 数据库结构

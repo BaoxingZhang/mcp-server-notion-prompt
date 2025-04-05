@@ -28,6 +28,7 @@ interface ServerConfig {
   notionDatabaseId: string;
   logLevel: LogLevel;
   cacheExpiryTime?: number;
+  promptHandlingMode?: "return_only" | "process_locally" | "call_external_api";
 }
 
 /**
@@ -60,6 +61,17 @@ function getServerConfig(): ServerConfig {
   // 可选配置项
   if (args.cache_expiry_time || process.env.CACHE_EXPIRY_TIME) {
     config.cacheExpiryTime = parseInt(args.cache_expiry_time || process.env.CACHE_EXPIRY_TIME || "300000", 10);
+  }
+  
+  // 添加处理模式配置
+  const handlingMode = args.prompt_handling_mode || process.env.PROMPT_HANDLING_MODE;
+  if (handlingMode) {
+    if (["return_only", "process_locally", "call_external_api"].includes(handlingMode)) {
+      config.promptHandlingMode = handlingMode as "return_only" | "process_locally" | "call_external_api";
+    } else {
+      log("WARN", `无效的处理模式值 '${handlingMode}'，将使用默认值 'return_only'`);
+      config.promptHandlingMode = "return_only";
+    }
   }
   
   // 验证必要的配置
@@ -212,6 +224,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         }
       },
       {
+        name: "process_composed_prompt",
+        description: "将用户输入整合到提示词模板中，并使用当前LLM处理",
+        inputSchema: {
+          type: "object",
+          properties: {
+            promptName: {
+              type: "string",
+              description: "提示词名称"
+            },
+            userInput: {
+              type: "string",
+              description: "用户输入内容"
+            }
+          },
+          required: ["promptName", "userInput"]
+        }
+      },
+      {
         name: "refresh_prompts",
         description: "刷新提示词缓存",
         inputSchema: {
@@ -328,6 +358,127 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
       
+      // 根据处理模式配置决定如何处理组合后的提示词
+      const handlingMode = getServerConfig().promptHandlingMode || "return_only";
+      
+      if (handlingMode === "return_only") {
+        // 仅返回组合后的提示词文本，不做额外处理
+        return {
+          content: [{
+            type: "text",
+            text: finalPrompt,
+            metadata: {
+              processingInstruction: "NO_FURTHER_PROCESSING_REQUIRED",
+              description: "此提示词仅供返回，LLM应避免直接处理它"
+            }
+          }]
+        };
+      } 
+      else if (handlingMode === "process_locally") {
+        // 在日志中记录这是本地处理模式
+        log("INFO", `使用本地处理模式处理提示词: ${promptName}`);
+        
+        // 仅返回提示词，由客户端自己调用当前LLM处理
+        return {
+          content: [{
+            type: "text",
+            text: finalPrompt,
+            metadata: {
+              processingInstruction: "PROCESS_WITH_CURRENT_LLM",
+              description: "请使用当前LLM上下文处理此提示词"
+            }
+          }]
+        };
+      }
+      else if (handlingMode === "call_external_api") {
+        // 这里可以实现调用外部API的逻辑
+        log("INFO", `调用外部API处理提示词: ${promptName}`);
+        
+        // TODO: 实现调用外部API的逻辑
+        // 例如：const response = await callExternalLLMAPI(finalPrompt);
+        
+        return {
+          content: [{
+            type: "text",
+            text: `未实现的功能: 调用外部API处理提示词`
+          }]
+        };
+      }
+      
+      // 默认行为：返回组合后的提示词
+      return {
+        content: [{
+          type: "text",
+          text: finalPrompt
+        }]
+      };
+    }
+    
+    case "process_composed_prompt": {
+      const promptName = String(request.params.arguments?.promptName);
+      const userInput = String(request.params.arguments?.userInput);
+      
+      process.stderr.write(`[MCP] 工具调用: process_composed_prompt "${promptName}", 用户输入: "${userInput.substring(0, 30)}${userInput.length > 30 ? '...' : ''}"\n`);
+      
+      const finalPrompt = await notionService.composePrompt(promptName, userInput);
+      
+      if (!finalPrompt) {
+        return {
+          content: [{
+            type: "text",
+            text: `错误: 未找到名为 "${promptName}" 的提示词`
+          }]
+        };
+      }
+      
+      // 根据处理模式配置决定如何处理组合后的提示词
+      const handlingMode = getServerConfig().promptHandlingMode || "return_only";
+      
+      if (handlingMode === "return_only") {
+        // 仅返回组合后的提示词文本，不做额外处理
+        return {
+          content: [{
+            type: "text",
+            text: finalPrompt,
+            metadata: {
+              processingInstruction: "NO_FURTHER_PROCESSING_REQUIRED",
+              description: "此提示词仅供返回，LLM应避免直接处理它"
+            }
+          }]
+        };
+      } 
+      else if (handlingMode === "process_locally") {
+        // 在日志中记录这是本地处理模式
+        log("INFO", `使用本地处理模式处理提示词: ${promptName}`);
+        
+        // 仅返回提示词，由客户端自己调用当前LLM处理
+        return {
+          content: [{
+            type: "text",
+            text: finalPrompt,
+            metadata: {
+              processingInstruction: "PROCESS_WITH_CURRENT_LLM",
+              description: "请使用当前LLM上下文处理此提示词"
+            }
+          }]
+        };
+      }
+      else if (handlingMode === "call_external_api") {
+        // 这里可以实现调用外部API的逻辑
+        log("INFO", `调用外部API处理提示词: ${promptName}`);
+        
+        // TODO: 实现调用外部API的逻辑
+        // 例如：const response = await callExternalLLMAPI(finalPrompt);
+        
+        return {
+          content: [{
+            type: "text",
+            text: `未实现的功能: 调用外部API处理提示词`
+          }]
+        };
+      }
+      
+      // 默认行为：返回组合后的提示词
       return {
         content: [{
           type: "text",
@@ -385,8 +536,27 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       
       try {
         const prompts = await notionService.getPrompts();
+        
+        // 处理特殊情况：如果用户请求"all"或"所有"，返回所有提示词
+        if (category.toLowerCase() === "all" || category.toLowerCase() === "所有") {
+          const allPrompts = prompts.map(p => ({
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            category: p.category
+          }));
+          
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify(allPrompts, null, 2)
+            }]
+          };
+        }
+        
+        // 正常情况：过滤出包含指定类别的提示词
         const filteredPrompts = prompts
-          .filter(p => p.category === category)
+          .filter(p => p.category.includes(category))
           .map(p => ({
             id: p.id,
             name: p.name,
@@ -457,11 +627,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       
       try {
         const prompts = await notionService.getPrompts();
+        
         // 获取所有类别并去重
-        const categories = [...new Set(prompts
-          .map(p => p.category)
-          .filter(c => c !== undefined && c !== null && c !== "")
-        )];
+        const categoriesSet = new Set<string>();
+        
+        // 收集所有提示词的所有类别
+        prompts.forEach(prompt => {
+          prompt.category.forEach(cat => {
+            categoriesSet.add(cat);
+          });
+        });
+        
+        // 始终添加"所有"类别
+        categoriesSet.add("所有");
+        
+        // 转换为数组
+        const categories = [...categoriesSet];
         
         return {
           content: [{
