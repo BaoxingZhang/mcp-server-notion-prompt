@@ -93,6 +93,13 @@ function log(level: string, message: string): void {
   NotionService.log(level as LogLevel, message);
 }
 
+/**
+ * 截断过长的输入文本
+ */
+function truncateText(text: string, maxLength: number = 30): string {
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+}
+
 // Initialize Notion service
 let notionService: NotionService;
 
@@ -309,23 +316,30 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 /**
+ * 创建错误响应
+ */
+function createErrorResponse(message: string) {
+  return {
+    content: [{
+      type: "text",
+      text: message
+    }]
+  };
+}
+
+/**
  * Handler for the tools
  */
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (request.params.name) {
     case "get_prompt_by_name": {
       const name = String(request.params.arguments?.name);
-      process.stderr.write(`[MCP] 工具调用: get_prompt_by_name "${name}"\n`);
+      log("INFO", `工具调用: get_prompt_by_name "${name}"`);
       
       const prompt = await notionService.findPromptByName(name);
       
       if (!prompt) {
-        return {
-          content: [{
-            type: "text",
-            text: `错误: 未找到名为 "${name}" 的提示词`
-          }]
-        };
+        return createErrorResponse(`错误: 未找到名为 "${name}" 的提示词`);
       }
       
       return {
@@ -346,17 +360,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const promptName = String(request.params.arguments?.promptName);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: compose_prompt "${promptName}", 用户输入: "${userInput.substring(0, 30)}${userInput.length > 30 ? '...' : ''}"`);
+      log("INFO", `工具调用: compose_prompt "${promptName}", 用户输入: "${truncateText(userInput)}"`);
       
       const result = await notionService.composeAndHandlePrompt(promptName, userInput);
       
       if (!result) {
-        return {
-          content: [{
-            type: "text",
-            text: `错误: 未找到名为 "${promptName}" 的提示词`
-          }]
-        };
+        return createErrorResponse(`错误: 未找到名为 "${promptName}" 的提示词`);
       }
       
       return {
@@ -372,7 +381,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const promptName = String(request.params.arguments?.promptName);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: process_composed_prompt "${promptName}", 用户输入: "${userInput.substring(0, 30)}${userInput.length > 30 ? '...' : ''}"`);
+      log("INFO", `工具调用: process_composed_prompt "${promptName}", 用户输入: "${truncateText(userInput)}"`);
       
       // 强制使用process_locally模式处理
       const result = await notionService.composeAndHandlePrompt(
@@ -382,12 +391,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
       
       if (!result) {
-        return {
-          content: [{
-            type: "text",
-            text: `错误: 未找到名为 "${promptName}" 的提示词`
-          }]
-        };
+        return createErrorResponse(`错误: 未找到名为 "${promptName}" 的提示词`);
       }
       
       return {
@@ -403,7 +407,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const category = String(request.params.arguments?.category);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: process_category_prompts "${category}", 用户输入: "${userInput.substring(0, 30)}${userInput.length > 30 ? '...' : ''}"`);
+      log("INFO", `工具调用: process_category_prompts "${category}", 用户输入: "${truncateText(userInput)}"`);
       
       try {
         const prompts = await notionService.getPrompts();
@@ -412,12 +416,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const filteredPrompts = prompts.filter(p => p.category.includes(category));
         
         if (filteredPrompts.length === 0) {
-          return {
-            content: [{
-              type: "text",
-              text: `未找到类别为 "${category}" 的提示词`
-            }]
-          };
+          return createErrorResponse(`未找到类别为 "${category}" 的提示词`);
         }
         
         // 为每个提示词创建单独的处理结果
@@ -448,12 +447,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          content: [{
-            type: "text",
-            text: `处理类别提示词时出错: ${message}`
-          }]
-        };
+        return createErrorResponse(`处理类别提示词时出错: ${message}`);
       }
     }
     
@@ -469,12 +463,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }]
         };
       } catch (error) {
-        return {
-          content: [{
-            type: "text",
-            text: `刷新提示词时出错: ${error}`
-          }]
-        };
+        return createErrorResponse(`刷新提示词时出错: ${error}`);
       }
     }
     
@@ -491,12 +480,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }]
         };
       } catch (error) {
-        return {
-          content: [{
-            type: "text",
-            text: `获取提示词列表时出错: ${error}`
-          }]
-        };
+        return createErrorResponse(`获取提示词列表时出错: ${error}`);
       }
     }
     
@@ -542,12 +526,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          content: [{
-            type: "text",
-            text: `获取类别提示词时出错: ${message}`
-          }]
-        };
+        return createErrorResponse(`获取类别提示词时出错: ${message}`);
       }
     }
     
@@ -558,22 +537,30 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
         const prompts = await notionService.getPrompts();
         const searchResults = prompts
-          .filter(p => 
-            p.name.toLowerCase().includes(query) || 
-            p.description.toLowerCase().includes(query) || 
-            p.content.toLowerCase().includes(query)
-          )
-          .map(p => ({
-            id: p.id,
-            name: p.name,
-            description: p.description,
-            category: p.category,
-            matchType: p.name.toLowerCase().includes(query) 
-              ? "name" 
-              : p.description.toLowerCase().includes(query) 
-                ? "description" 
-                : "content"
-          }));
+          .filter(p => {
+            // 检查匹配条件
+            const nameMatch = p.name.toLowerCase().includes(query);
+            const descMatch = p.description.toLowerCase().includes(query);
+            const contentMatch = p.content.toLowerCase().includes(query);
+            return nameMatch || descMatch || contentMatch;
+          })
+          .map(p => {
+            // 确定匹配类型
+            let matchType = "content";
+            if (p.name.toLowerCase().includes(query)) {
+              matchType = "name";
+            } else if (p.description.toLowerCase().includes(query)) {
+              matchType = "description";
+            }
+            
+            return {
+              id: p.id,
+              name: p.name,
+              description: p.description,
+              category: p.category,
+              matchType
+            };
+          });
         
         return {
           content: [{
@@ -583,12 +570,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          content: [{
-            type: "text",
-            text: `搜索提示词时出错: ${message}`
-          }]
-        };
+        return createErrorResponse(`搜索提示词时出错: ${message}`);
       }
     }
     
@@ -598,21 +580,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       try {
         const prompts = await notionService.getPrompts();
         
-        // 获取所有类别并去重
-        const categoriesSet = new Set<string>();
-        
-        // 收集所有提示词的所有类别
-        prompts.forEach(prompt => {
-          prompt.category.forEach(cat => {
-            categoriesSet.add(cat);
-          });
-        });
-        
-        // 始终添加"所有"类别
-        categoriesSet.add("所有");
-        
-        // 转换为数组
-        const categories = [...categoriesSet];
+        // 使用flatMap和Set简化类别提取和去重
+        const categories = [
+          "所有",
+          ...Array.from(
+            new Set(
+              prompts.flatMap(prompt => prompt.category)
+            )
+          )
+        ];
         
         return {
           content: [{
@@ -622,17 +598,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return {
-          content: [{
-            type: "text",
-            text: `获取类别列表时出错: ${message}`
-          }]
-        };
+        return createErrorResponse(`获取类别列表时出错: ${message}`);
       }
     }
     
     default:
-      throw new Error("未知工具");
+      return createErrorResponse("未知工具");
   }
 });
 

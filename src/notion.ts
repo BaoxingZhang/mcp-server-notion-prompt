@@ -60,22 +60,28 @@ export class NotionService {
    * 日志记录函数
    */
   private log(level: LogLevel, message: string): void {
-    if (this.getLogLevelValue(level) <= this.getLogLevelValue(this.logLevel)) {
-      process.stderr.write(`[MCP] ${level}: ${message}\n`);
-    }
+    NotionService.log(level, message);
   }
 
   /**
    * 静态日志记录函数，可在其他文件使用
    */
   public static log(level: LogLevel, message: string): void {
-    process.stderr.write(`[MCP] ${level}: ${message}\n`);
+    const levelValue = NotionService.getLogLevelValue(level);
+    const currentLevel = NotionService.currentLogLevel || LogLevel.INFO;
+    const currentLevelValue = NotionService.getLogLevelValue(currentLevel);
+    
+    if (levelValue <= currentLevelValue) {
+      process.stderr.write(`[MCP] ${level}: ${message}\n`);
+    }
   }
+  
+  private static currentLogLevel: LogLevel = LogLevel.INFO;
 
   /**
    * 获取日志级别的数值表示
    */
-  private getLogLevelValue(level: LogLevel): number {
+  private static getLogLevelValue(level: LogLevel): number {
     switch (level) {
       case LogLevel.ERROR: return 0;
       case LogLevel.WARN: return 1;
@@ -90,6 +96,7 @@ export class NotionService {
    */
   public setLogLevel(level: LogLevel): void {
     this.logLevel = level;
+    NotionService.currentLogLevel = level;
     this.log(LogLevel.INFO, `日志级别已设置为: ${level}`);
   }
 
@@ -259,21 +266,18 @@ export class NotionService {
       return null;
     }
     
-    // 替换多个变量
-    let finalPrompt = prompt.content;
-    
-    // 替换主要的用户输入变量
-    finalPrompt = finalPrompt.replace(/\{\{USER_INPUT\}\}/g, userInput);
-    
-    // 替换其他可能的变量
+    // 创建变量映射
     const now = new Date();
-    const variables = {
+    const variables: Record<string, string> = {
+      'USER_INPUT': userInput,
       'CURRENT_DATE': now.toLocaleDateString(),
       'CURRENT_TIME': now.toLocaleTimeString(),
       'CURRENT_DATETIME': now.toLocaleString(),
       'PROMPT_NAME': promptName,
     };
     
+    // 一次性替换所有变量
+    let finalPrompt = prompt.content;
     for (const [key, value] of Object.entries(variables)) {
       finalPrompt = finalPrompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
     }
@@ -295,7 +299,7 @@ export class NotionService {
         category: prompt.category
       }));
     } catch (error) {
-      return this.handleError("获取提示词列表", error);
+      this.handleError("获取提示词列表", error);
     }
   }
 
@@ -303,13 +307,8 @@ export class NotionService {
    * 设置缓存过期时间（毫秒）
    */
   public setCacheExpiryTime(timeMs: number): void {
-    if (timeMs < 1000) {
-      this.log(LogLevel.WARN, `缓存过期时间太短 (${timeMs}ms)，使用默认的最小值1000ms`);
-      timeMs = 1000;
-    }
-    
-    this.cacheExpiryTime = timeMs;
-    this.log(LogLevel.INFO, `缓存过期时间已设置为 ${timeMs}ms`);
+    this.cacheExpiryTime = Math.max(1000, timeMs);
+    this.log(LogLevel.INFO, `缓存过期时间已设置为 ${this.cacheExpiryTime}ms`);
   }
 
   /**
