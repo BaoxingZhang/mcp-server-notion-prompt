@@ -29,30 +29,30 @@ npm run build
 
 ## 配置
 
-### 1、创建Notion集成
+### 1. 创建Notion集成
 
-1、访问 Notion Developer Portal  
-https://www.notion.so/my-integrations  
-2、点击"+ New integration"  
-3、填写基本信息  
-4、在"Capabilities"部分，确保勾选：Read content  
-5、点击"Submit"创建集成  
-6、创建后，复制显示的"Internal Integration Token"（以"ntn_"开头），这是您的NOTION_API_KEY  
+1. 访问 [Notion Developer Portal](https://www.notion.so/my-integrations)
+2. 点击"+ New integration"
+3. 填写基本信息
+4. 在"Capabilities"部分，确保勾选：Read content
+5. 点击"Submit"创建集成
+6. 创建后，复制显示的"Internal Integration Token"（以"ntn_"开头），这是您的NOTION_API_KEY
 
-### 2、创建Notion数据库
-1、在Notion中创建一个新页面  
-2、输入 /database 并选择"表格数据库"  
-3、设置以下属性：  
-- Name（标题属性）：提示词的名称  
-- Content（文本属性）：提示词的内容  
-- Description（文本属性）：提示词的描述或用途  
-- Category（多选属性）：提示词的分类（可选）  
+### 2. 创建Notion数据库
 
-4、在Notion中打开您的提示词数据库  
-5、在页面URL中找到数据库ID（`https://www.notion.so/workspace/123456abcdef...`,其中的"123456abcdef..."部分就是数据库ID）  
-6、记录这个ID，它将作为NOTION_DATABASE_ID使用  
-7、分享数据库给集成（打开提示词数据库、点击右上角的"..."菜单、选择"Add connections"、在搜索框中找到并选择您刚创建的集成）  
+1. 在Notion中创建一个新页面
+2. 输入 /database 并选择"表格数据库"
+3. 设置以下属性：
+   - Name（标题属性）：提示词的名称
+   - Content（文本属性）：提示词的内容
+   - Description（文本属性）：提示词的描述或用途
+   - Category（多选属性）：提示词的分类（可选）
+4. 在Notion中打开您的提示词数据库
+5. 在页面URL中找到数据库ID（`https://www.notion.so/workspace/123456abcdef...`，其中的"123456abcdef..."部分就是数据库ID）
+6. 记录这个ID，它将作为NOTION_DATABASE_ID使用
+7. 分享数据库给集成（打开提示词数据库、点击右上角的"..."菜单、选择"Add connections"、在搜索框中找到并选择您刚创建的集成）
 
+### 3. 服务器配置
 
 服务器需要以下配置：
 
@@ -106,10 +106,12 @@ Notion 数据库应包含以下属性：
 1. **list_prompts**: 列出所有可用的提示词
 2. **get_prompt_by_name**: 通过名称获取提示词
 3. **compose_prompt**: 将用户输入整合到提示词模板中
-4. **refresh_prompts**: 刷新提示词缓存
-5. **get_prompts_by_category**: 获取特定类别的提示词
-6. **search_prompts**: 搜索提示词（名称、描述和内容）
-7. **list_categories**: 列出所有可用的提示词类别
+4. **process_composed_prompt**: 处理组合后的提示词
+5. **process_category_prompts**: 处理指定类别的所有提示词
+6. **refresh_prompts**: 刷新提示词缓存
+7. **get_prompts_by_category**: 获取特定类别的提示词
+8. **search_prompts**: 搜索提示词（名称、描述和内容）
+9. **list_categories**: 列出所有可用的提示词类别
 
 ## 开发
 
@@ -127,13 +129,45 @@ npm test
 ## 使用示例
 
 ```
-1、请使用get_prompt_by_name工具获取名为"翻译助手"的提示词。
-2、请使用compose_prompt工具，提示词名称为"翻译助手"，用户输入为"Hello, I am learning to use Cursor with MCP."
-3、请使用名为"翻译助手"的提示词翻译以下文本：Hello, I am learning to use Cursor with MCP.
-4、请使用refresh_prompts工具刷新提示词缓存。
-5、调用类别为“七把武器”的提示词，分别输出7个svg卡片，输入内容为：“只看新闻，不讨论~”。
-6、调用类别为“七把武器”的提示词，先分别输出7个svg卡片，然后将7个svg卡片最终整合到一个html中，输入内容为：“只看新闻，不讨论~”。
+# 获取特定提示词
+请使用get_prompt_by_name工具获取名为"翻译助手"的提示词。
 
+# 组合提示词与用户输入
+请使用compose_prompt工具，提示词名称为"翻译助手"，用户输入为"Hello, I am learning to use Cursor with MCP."
+
+# 直接使用提示词处理内容
+请使用名为"翻译助手"的提示词翻译以下文本：Hello, I am learning to use Cursor with MCP.
+
+# 刷新缓存
+请使用refresh_prompts工具刷新提示词缓存。
+
+# 使用类别调用多个提示词
+调用类别为"七把武器"的提示词，分别输出7个svg卡片，输入内容为："只看新闻，不讨论~"。
+
+# 组合处理结果
+调用类别为"七把武器"的提示词，先分别输出7个svg卡片，然后将7个svg卡片最终整合到一个html中，输入内容为："只看新闻，不讨论~"。
+
+# AI自主选择
+生命，爱与欢笑（奥修）
+选择七把武器中一把合适的武器输出
+```
+
+## server json 示例
+```
+{
+  "mcpServers": {
+    "notion-prompts": {
+      "command": "node",
+      "args": [
+        "D:\\project\\mcp-project\\mcp-server-notion-prompt\\build\\index.js"
+      ],
+      "env": {
+        "NOTION_API_KEY": "ntn_xxx",
+        "NOTION_DATABASE_ID": "1ccxxx"
+      }
+    }
+  }
+}
 ```
 
 ## 许可证
