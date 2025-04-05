@@ -17,7 +17,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/mcp-server-notion-prompt.git
+git clone https://github.com/BaoxingZhang/mcp-server-notion-prompt
 cd mcp-server-notion-prompt
 
 # 安装依赖
@@ -29,11 +29,36 @@ npm run build
 
 ## 配置
 
+### 1、创建Notion集成
+
+1、访问 Notion Developer Portal  
+https://www.notion.so/my-integrations  
+2、点击"+ New integration"  
+3、填写基本信息  
+4、在"Capabilities"部分，确保勾选：Read content  
+5、点击"Submit"创建集成  
+6、创建后，复制显示的"Internal Integration Token"（以"ntn_"开头），这是您的NOTION_API_KEY  
+
+### 2、创建Notion数据库
+1、在Notion中创建一个新页面  
+2、输入 /database 并选择"表格数据库"  
+3、设置以下属性：  
+- Name（标题属性）：提示词的名称  
+- Content（文本属性）：提示词的内容  
+- Description（文本属性）：提示词的描述或用途  
+- Category（多选属性）：提示词的分类（可选）  
+
+4、在Notion中打开您的提示词数据库  
+5、在页面URL中找到数据库ID（`https://www.notion.so/workspace/123456abcdef...`,其中的"123456abcdef..."部分就是数据库ID）  
+6、记录这个ID，它将作为NOTION_DATABASE_ID使用  
+7、分享数据库给集成（打开提示词数据库、点击右上角的"..."菜单、选择"Add connections"、在搜索框中找到并选择您刚创建的集成）  
+
+
 服务器需要以下配置：
 
 - **NOTION_API_KEY**: 你的 Notion API 密钥
 - **NOTION_DATABASE_ID**: 存储提示词的 Notion 数据库 ID
-- **PROMPT_HANDLING_MODE**: 提示词组合后的处理模式（可选，默认为 return_only）
+- **PROMPT_HANDLING_MODE**: 提示词组合后的处理模式（可选，默认为 process_locally）
   - `return_only`: 仅返回组合后的提示词文本，不做额外处理
   - `process_locally`: 指示客户端使用当前上下文的LLM处理提示词
   - `call_external_api`: 服务器调用外部API处理提示词（需另行配置）
@@ -46,7 +71,7 @@ export NOTION_API_KEY="your_api_key_here"
 export NOTION_DATABASE_ID="your_database_id_here"
 export LOG_LEVEL="INFO"  # 可选，默认为 INFO
 export CACHE_EXPIRY_TIME="300000"  # 可选，默认为 5 分钟 (300000ms)
-export PROMPT_HANDLING_MODE="return_only"  # 可选，默认为 return_only
+export PROMPT_HANDLING_MODE="process_locally"  # 可选，默认为 process_locally
 
 # 启动服务器
 npm start

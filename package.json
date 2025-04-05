@@ -18,8 +18,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",
-    "@notionhq/client": "^2.3.0",
-    "dotenv": "^16.4.7"
+    "@notionhq/client": "^2.3.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
