@@ -18,7 +18,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { Client } from "@notionhq/client";
+import { NotionService, Prompt } from "./notion.js";
 
 /**
  * 解析命令行参数
@@ -40,17 +40,8 @@ const args = parseArgs();
 const NOTION_API_KEY = args.notion_api_key || process.env.NOTION_API_KEY || "";
 const NOTION_DATABASE_ID = args.notion_database_id || process.env.NOTION_DATABASE_ID || "";
 
-// Initialize Notion client
-const notion = new Client({ auth: NOTION_API_KEY });
-
-// Type definition for prompts
-type Prompt = {
-  id: string;
-  name: string;
-  content: string;
-  description: string;
-  category?: string;
-};
+// Initialize Notion service
+const notionService = new NotionService(NOTION_API_KEY, NOTION_DATABASE_ID);
 
 /**
  * Create an MCP server with capabilities for resources and tools
@@ -69,81 +60,10 @@ const server = new Server(
 );
 
 /**
- * Fetch all prompts from Notion database
- */
-async function fetchPrompts(): Promise<Prompt[]> {
-  process.stderr.write("[MCP] 从Notion获取提示词数据\n");
-  
-  try {
-    const response = await notion.databases.query({
-      database_id: NOTION_DATABASE_ID,
-    });
-    
-    const prompts: Prompt[] = [];
-    
-    for (const page of response.results) {
-      try {
-        // @ts-ignore - Property access needs to be more carefully typed
-        const nameProperty = page.properties.Name?.title;
-        // @ts-ignore
-        const contentProperty = page.properties.Content?.rich_text;
-        // @ts-ignore
-        const descriptionProperty = page.properties.Description?.rich_text;
-        // @ts-ignore
-        const categoryProperty = page.properties.Category?.select;
-        
-        if (!nameProperty || nameProperty.length === 0) {
-          continue;
-        }
-        
-        const name = nameProperty[0].plain_text;
-        const content = contentProperty?.map((text: any) => text.plain_text).join('') || '';
-        const description = descriptionProperty?.map((text: any) => text.plain_text).join('') || '';
-        const category = categoryProperty?.name || undefined;
-        
-        prompts.push({
-          id: page.id,
-          name,
-          content,
-          description,
-          category,
-        });
-      } catch (error) {
-        process.stderr.write(`[MCP] 处理提示词时出错: ${error}\n`);
-      }
-    }
-    
-    process.stderr.write(`[MCP] 已获取 ${prompts.length} 个提示词\n`);
-    return prompts;
-  } catch (error) {
-    process.stderr.write(`[MCP] 获取Notion数据库时出错: ${error}\n`);
-    throw new Error("无法从Notion获取提示词");
-  }
-}
-
-/**
- * Find a prompt by name
- */
-async function findPromptByName(name: string): Promise<Prompt | null> {
-  process.stderr.write(`[MCP] 正在查找提示词: "${name}"\n`);
-  
-  const prompts = await fetchPrompts();
-  const prompt = prompts.find(p => p.name === name);
-  
-  if (!prompt) {
-    process.stderr.write(`[MCP] 未找到提示词: "${name}"\n`);
-    return null;
-  }
-  
-  process.stderr.write(`[MCP] 找到提示词: "${name}"\n`);
-  return prompt;
-}
-
-/**
  * Handler for listing available prompts as resources
  */
 server.setRequestHandler(ListResourcesRequestSchema, async () => {
-  const prompts = await fetchPrompts();
+  const prompts = await notionService.getPrompts();
   
   return {
     resources: prompts.map(prompt => ({
@@ -164,7 +84,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   
   process.stderr.write(`[MCP] 正在读取提示词 ID: ${id}\n`);
   
-  const prompts = await fetchPrompts();
+  const prompts = await notionService.getPrompts();
   const prompt = prompts.find(p => p.id === id);
   
   if (!prompt) {
@@ -179,9 +99,6 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     }]
   };
 });
-
-
-
 
 /**
  * Handler that lists available tools
@@ -228,6 +145,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: "object",
           properties: {}
         }
+      },
+      {
+        name: "list_prompts",
+        description: "列出所有可用的提示词",
+        inputSchema: {
+          type: "object",
+          properties: {}
+        }
       }
     ]
   };
@@ -242,7 +167,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const name = String(request.params.arguments?.name);
       process.stderr.write(`[MCP] 工具调用: get_prompt_by_name "${name}"\n`);
       
-      const prompt = await findPromptByName(name);
+      const prompt = await notionService.findPromptByName(name);
       
       if (!prompt) {
         return {
@@ -282,7 +207,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
       
-      const prompt = await findPromptByName(promptName);
+      const prompt = await notionService.findPromptByName(promptName);
       
       if (!prompt) {
         return {
@@ -308,12 +233,51 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     
     case "refresh_prompts": {
       process.stderr.write(`[MCP] 工具调用: refresh_prompts\n`);
-      return {
-        content: [{
-          type: "text",
-          text: "提示词数据已刷新"
-        }]
-      };
+      
+      try {
+        const prompts = await notionService.refreshCache();
+        return {
+          content: [{
+            type: "text",
+            text: `提示词数据已刷新，共加载 ${prompts.length} 个提示词`
+          }]
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `刷新提示词时出错: ${error}`
+          }]
+        };
+      }
+    }
+    
+    case "list_prompts": {
+      process.stderr.write(`[MCP] 工具调用: list_prompts\n`);
+      
+      try {
+        const prompts = await notionService.getPrompts();
+        const promptList = prompts.map(prompt => ({
+          id: prompt.id,
+          name: prompt.name,
+          description: prompt.description,
+          category: prompt.category
+        }));
+        
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(promptList, null, 2)
+          }]
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `获取提示词列表时出错: ${error}`
+          }]
+        };
+      }
     }
     
     default:
@@ -328,6 +292,9 @@ async function main() {
   process.stderr.write("[MCP] Notion提示词MCP服务器正在启动...\n");
   
   try {
+    // 启动时预热缓存
+    await notionService.getPrompts();
+    
     const transport = new StdioServerTransport();
     await server.connect(transport);
     

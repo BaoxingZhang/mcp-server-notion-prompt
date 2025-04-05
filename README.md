@@ -11,7 +11,7 @@ npm run watch 
 npm run inspector
 ```
 
-##测试
+## 测试
 ```markdown
 # 获取特定提示词
 请使用get_prompt_by_name工具获取名为"翻译助手"的提示词。
