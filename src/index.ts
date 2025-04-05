@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Notion Prompts MCP Server
+ * Notion提示词MCP服务器
  * 
- * This server provides access to prompts stored in a Notion database.
- * It allows:
- * - Listing available prompts as resources
- * - Reading individual prompts
- * - Composing final prompts by combining templates with user input
+ * 该服务器提供对存储在Notion数据库中的提示词的访问。
+ * 它允许：
+ * - 将可用提示词列为资源
+ * - 读取单个提示词
+ * - 通过将模板与用户输入组合来创建最终提示词
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -18,7 +18,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { NotionService, Prompt, PromptInfo, LogLevel, PromptHandlingMode } from "./notion.js";
+import { NotionService, LogLevel, PromptHandlingMode } from "./notion.js";
 
 /**
  * 配置接口定义
@@ -69,7 +69,7 @@ function getServerConfig(): ServerConfig {
     if (["return_only", "process_locally", "call_external_api"].includes(handlingMode)) {
       config.promptHandlingMode = handlingMode as PromptHandlingMode;
     } else {
-      log("WARN", `无效的处理模式值 '${handlingMode}'，将使用默认值 'return_only'`);
+      NotionService.log(LogLevel.WARN, `无效的处理模式值 '${handlingMode}'，将使用默认值 'return_only'`);
       config.promptHandlingMode = "return_only";
     }
   }
@@ -86,25 +86,11 @@ function getServerConfig(): ServerConfig {
   return config;
 }
 
-/**
- * 记录日志到stderr
- */
-function log(level: string, message: string): void {
-  NotionService.log(level as LogLevel, message);
-}
-
-/**
- * 截断过长的输入文本
- */
-function truncateText(text: string, maxLength: number = 30): string {
-  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
-}
-
-// Initialize Notion service
+// 初始化Notion服务
 let notionService: NotionService;
 
 /**
- * Create an MCP server with capabilities for resources and tools
+ * 创建一个具有资源和工具功能的MCP服务器
  */
 const server = new Server(
   {
@@ -139,16 +125,16 @@ function initializeServer() {
       notionService.setCacheExpiryTime(config.cacheExpiryTime);
     }
     
-    log("INFO", "服务初始化完成");
+    NotionService.log(LogLevel.INFO, "服务初始化完成");
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    log("ERROR", `服务初始化失败: ${message}`);
+    NotionService.log(LogLevel.ERROR, `服务初始化失败: ${message}`);
     process.exit(1);
   }
 }
 
 /**
- * Handler for listing available prompts as resources
+ * 列出可用提示词作为资源的处理器
  */
 server.setRequestHandler(ListResourcesRequestSchema, async () => {
   const prompts = await notionService.getPrompts();
@@ -164,7 +150,7 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
 });
 
 /**
- * Handler for reading a specific prompt
+ * 读取特定提示词的处理器
  */
 server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   const url = new URL(request.params.uri);
@@ -186,7 +172,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
 });
 
 /**
- * Handler that lists available tools
+ * 列出可用工具的处理器
  */
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -316,30 +302,23 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 /**
- * 创建错误响应
- */
-function createErrorResponse(message: string) {
-  return {
-    content: [{
-      type: "text",
-      text: message
-    }]
-  };
-}
-
-/**
- * Handler for the tools
+ * 处理工具调用的处理器
  */
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   switch (request.params.name) {
     case "get_prompt_by_name": {
       const name = String(request.params.arguments?.name);
-      log("INFO", `工具调用: get_prompt_by_name "${name}"`);
+      NotionService.log(LogLevel.INFO, `工具调用: get_prompt_by_name "${name}"`);
       
       const prompt = await notionService.findPromptByName(name);
       
       if (!prompt) {
-        return createErrorResponse(`错误: 未找到名为 "${name}" 的提示词`);
+        return {
+          content: [{
+            type: "text",
+            text: `错误: 未找到名为 "${name}" 的提示词`
+          }]
+        };
       }
       
       return {
@@ -360,12 +339,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const promptName = String(request.params.arguments?.promptName);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: compose_prompt "${promptName}", 用户输入: "${truncateText(userInput)}"`);
+      const truncatedInput = userInput.length > 30 ? `${userInput.substring(0, 30)}...` : userInput;
+      NotionService.log(LogLevel.INFO, `工具调用: compose_prompt "${promptName}", 用户输入: "${truncatedInput}"`);
       
       const result = await notionService.composeAndHandlePrompt(promptName, userInput);
       
       if (!result) {
-        return createErrorResponse(`错误: 未找到名为 "${promptName}" 的提示词`);
+        return {
+          content: [{
+            type: "text",
+            text: `错误: 未找到名为 "${promptName}" 的提示词`
+          }]
+        };
       }
       
       return {
@@ -381,7 +366,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const promptName = String(request.params.arguments?.promptName);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: process_composed_prompt "${promptName}", 用户输入: "${truncateText(userInput)}"`);
+      const truncatedInput = userInput.length > 30 ? `${userInput.substring(0, 30)}...` : userInput;
+      NotionService.log(LogLevel.INFO, `工具调用: process_composed_prompt "${promptName}", 用户输入: "${truncatedInput}"`);
       
       // 强制使用process_locally模式处理
       const result = await notionService.composeAndHandlePrompt(
@@ -391,7 +377,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
       
       if (!result) {
-        return createErrorResponse(`错误: 未找到名为 "${promptName}" 的提示词`);
+        return {
+          content: [{
+            type: "text",
+            text: `错误: 未找到名为 "${promptName}" 的提示词`
+          }]
+        };
       }
       
       return {
@@ -407,7 +398,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const category = String(request.params.arguments?.category);
       const userInput = String(request.params.arguments?.userInput);
       
-      log("INFO", `工具调用: process_category_prompts "${category}", 用户输入: "${truncateText(userInput)}"`);
+      const truncatedInput = userInput.length > 30 ? `${userInput.substring(0, 30)}...` : userInput;
+      NotionService.log(LogLevel.INFO, `工具调用: process_category_prompts "${category}", 用户输入: "${truncatedInput}"`);
       
       try {
         const prompts = await notionService.getPrompts();
@@ -416,7 +408,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const filteredPrompts = prompts.filter(p => p.category.includes(category));
         
         if (filteredPrompts.length === 0) {
-          return createErrorResponse(`未找到类别为 "${category}" 的提示词`);
+          return {
+            content: [{
+              type: "text",
+              text: `未找到类别为 "${category}" 的提示词`
+            }]
+          };
         }
         
         // 为每个提示词创建单独的处理结果
@@ -447,12 +444,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return createErrorResponse(`处理类别提示词时出错: ${message}`);
+        return {
+          content: [{
+            type: "text",
+            text: `处理类别提示词时出错: ${message}`
+          }]
+        };
       }
     }
     
     case "refresh_prompts": {
-      process.stderr.write(`[MCP] 工具调用: refresh_prompts\n`);
+      NotionService.log(LogLevel.INFO, `工具调用: refresh_prompts`);
       
       try {
         const prompts = await notionService.refreshCache();
@@ -463,12 +465,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }]
         };
       } catch (error) {
-        return createErrorResponse(`刷新提示词时出错: ${error}`);
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: "text",
+            text: `刷新提示词时出错: ${message}`
+          }]
+        };
       }
     }
     
     case "list_prompts": {
-      process.stderr.write(`[MCP] 工具调用: list_prompts\n`);
+      NotionService.log(LogLevel.INFO, `工具调用: list_prompts`);
       
       try {
         const promptList = await notionService.getPromptList();
@@ -480,13 +488,19 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }]
         };
       } catch (error) {
-        return createErrorResponse(`获取提示词列表时出错: ${error}`);
+        const message = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{
+            type: "text",
+            text: `获取提示词列表时出错: ${message}`
+          }]
+        };
       }
     }
     
     case "get_prompts_by_category": {
       const category = String(request.params.arguments?.category);
-      log("INFO", `工具调用: get_prompts_by_category "${category}"`);
+      NotionService.log(LogLevel.INFO, `工具调用: get_prompts_by_category "${category}"`);
       
       try {
         const prompts = await notionService.getPrompts();
@@ -526,30 +540,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return createErrorResponse(`获取类别提示词时出错: ${message}`);
+        return {
+          content: [{
+            type: "text",
+            text: `获取类别提示词时出错: ${message}`
+          }]
+        };
       }
     }
     
     case "search_prompts": {
-      const query = String(request.params.arguments?.query).toLowerCase();
-      log("INFO", `工具调用: search_prompts "${query}"`);
+      const query = String(request.params.arguments?.query);
+      NotionService.log(LogLevel.INFO, `工具调用: search_prompts "${query}"`);
       
       try {
         const prompts = await notionService.getPrompts();
         const searchResults = prompts
           .filter(p => {
             // 检查匹配条件
-            const nameMatch = p.name.toLowerCase().includes(query);
-            const descMatch = p.description.toLowerCase().includes(query);
-            const contentMatch = p.content.toLowerCase().includes(query);
+            const nameMatch = p.name.toLowerCase().includes(query.toLowerCase());
+            const descMatch = p.description.toLowerCase().includes(query.toLowerCase());
+            const contentMatch = p.content.toLowerCase().includes(query.toLowerCase());
             return nameMatch || descMatch || contentMatch;
           })
           .map(p => {
             // 确定匹配类型
             let matchType = "content";
-            if (p.name.toLowerCase().includes(query)) {
+            if (p.name.toLowerCase().includes(query.toLowerCase())) {
               matchType = "name";
-            } else if (p.description.toLowerCase().includes(query)) {
+            } else if (p.description.toLowerCase().includes(query.toLowerCase())) {
               matchType = "description";
             }
             
@@ -570,12 +589,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return createErrorResponse(`搜索提示词时出错: ${message}`);
+        return {
+          content: [{
+            type: "text",
+            text: `搜索提示词时出错: ${message}`
+          }]
+        };
       }
     }
     
     case "list_categories": {
-      log("INFO", `工具调用: list_categories`);
+      NotionService.log(LogLevel.INFO, `工具调用: list_categories`);
       
       try {
         const prompts = await notionService.getPrompts();
@@ -598,20 +622,30 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return createErrorResponse(`获取类别列表时出错: ${message}`);
+        return {
+          content: [{
+            type: "text",
+            text: `获取类别列表时出错: ${message}`
+          }]
+        };
       }
     }
     
     default:
-      return createErrorResponse("未知工具");
+      return {
+        content: [{
+          type: "text",
+          text: "未知工具"
+        }]
+      };
   }
 });
 
 /**
- * Start the server using stdio transport
+ * 使用stdio传输启动服务器
  */
 async function main() {
-  log("INFO", "Notion提示词MCP服务器正在启动...");
+  NotionService.log(LogLevel.INFO, "Notion提示词MCP服务器正在启动...");
   
   try {
     // 初始化服务器
@@ -623,16 +657,16 @@ async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
     
-    log("INFO", "Notion提示词MCP服务器已启动并连接");
+    NotionService.log(LogLevel.INFO, "Notion提示词MCP服务器已启动并连接");
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    log("ERROR", `服务器启动失败: ${errorMsg}`);
+    NotionService.log(LogLevel.ERROR, `服务器启动失败: ${errorMsg}`);
     process.exit(1);
   }
 }
 
 main().catch((error) => {
   const errorMsg = error instanceof Error ? error.message : String(error);
-  log("ERROR", `服务器错误: ${errorMsg}`);
+  NotionService.log(LogLevel.ERROR, `服务器错误: ${errorMsg}`);
   process.exit(1);
 });

@@ -8,7 +8,7 @@ export enum LogLevel {
   DEBUG = 'DEBUG'
 }
 
-// Type definition for prompts
+// 提示词的类型定义
 export type Prompt = {
   id: string;
   name: string;
@@ -150,7 +150,7 @@ export class NotionService {
   }
 
   /**
-   * Fetch all prompts from Notion database
+   * 从Notion数据库获取所有提示词
    */
   async fetchPrompts(): Promise<Prompt[]> {
     this.log(LogLevel.INFO, "从Notion获取提示词数据");
@@ -164,7 +164,7 @@ export class NotionService {
       
       for (const page of response.results) {
         try {
-          // @ts-ignore - Property access needs to be more carefully typed
+          // @ts-ignore - 属性访问需要更仔细的类型检查
           const nameProperty = page.properties.Name?.title;
           // @ts-ignore
           const contentProperty = page.properties.Content?.rich_text;
