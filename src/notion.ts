@@ -25,18 +25,20 @@ export type PromptInfo = {
   category: string[];
 };
 
-export interface PaginationOptions {
-  page: number;
-  pageSize: number;
+export interface PromptResponseOptions {
+  processingInstruction?: "NO_FURTHER_PROCESSING_REQUIRED" | "PROCESS_WITH_CURRENT_LLM";
+  description?: string;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
+export interface PromptHandlingResult {
+  text: string;
+  metadata?: {
+    processingInstruction?: string;
+    description?: string;
+  };
 }
+
+export type PromptHandlingMode = "return_only" | "process_locally" | "call_external_api";
 
 export class NotionService {
   private notion: Client;
@@ -45,11 +47,13 @@ export class NotionService {
   private lastCacheTime: number = 0;
   private cacheExpiryTime: number = 5 * 60 * 1000; // 5分钟的缓存过期时间
   private logLevel: LogLevel = LogLevel.INFO;
+  private promptHandlingMode: PromptHandlingMode = "return_only";
 
-  constructor(apiKey: string, databaseId: string, logLevel?: LogLevel) {
+  constructor(apiKey: string, databaseId: string, logLevel?: LogLevel, promptHandlingMode?: PromptHandlingMode) {
     this.notion = new Client({ auth: apiKey });
     this.databaseId = databaseId;
     if (logLevel) this.logLevel = logLevel;
+    if (promptHandlingMode) this.promptHandlingMode = promptHandlingMode;
   }
 
   /**
@@ -59,6 +63,13 @@ export class NotionService {
     if (this.getLogLevelValue(level) <= this.getLogLevelValue(this.logLevel)) {
       process.stderr.write(`[MCP] ${level}: ${message}\n`);
     }
+  }
+
+  /**
+   * 静态日志记录函数，可在其他文件使用
+   */
+  public static log(level: LogLevel, message: string): void {
+    process.stderr.write(`[MCP] ${level}: ${message}\n`);
   }
 
   /**
@@ -309,38 +320,86 @@ export class NotionService {
   }
 
   /**
-   * 获取分页的提示词列表
+   * 设置提示词处理模式
    */
-  async getPaginatedPrompts(options: PaginationOptions): Promise<PaginatedResult<PromptInfo>> {
-    this.log(LogLevel.INFO, `获取分页提示词，页码: ${options.page}, 每页数量: ${options.pageSize}`);
+  public setPromptHandlingMode(mode: PromptHandlingMode): void {
+    this.promptHandlingMode = mode;
+    this.log(LogLevel.INFO, `提示词处理模式已设置为: ${mode}`);
+  }
+
+  /**
+   * 获取当前提示词处理模式
+   */
+  public getPromptHandlingMode(): PromptHandlingMode {
+    return this.promptHandlingMode;
+  }
+
+  /**
+   * 处理组合后的提示词，根据不同的处理模式返回相应结果
+   */
+  public handleComposedPrompt(
+    finalPrompt: string, 
+    promptName: string, 
+    mode?: PromptHandlingMode
+  ): PromptHandlingResult {
+    // 使用传入的模式或默认模式
+    const handlingMode = mode || this.promptHandlingMode;
     
-    try {
-      const prompts = await this.getPrompts();
+    if (handlingMode === "return_only") {
+      // 仅返回组合后的提示词文本，不做额外处理
+      return {
+        text: finalPrompt,
+        metadata: {
+          processingInstruction: "NO_FURTHER_PROCESSING_REQUIRED",
+          description: "此提示词仅供返回，LLM应避免直接处理它"
+        }
+      };
+    } 
+    else if (handlingMode === "process_locally") {
+      // 在日志中记录这是本地处理模式
+      this.log(LogLevel.INFO, `使用本地处理模式处理提示词: ${promptName}`);
       
-      const page = Math.max(1, options.page);
-      const pageSize = Math.max(1, options.pageSize);
-      const total = prompts.length;
-      const totalPages = Math.ceil(total / pageSize);
+      // 仅返回提示词，由客户端自己调用当前LLM处理
+      return {
+        text: finalPrompt,
+        metadata: {
+          processingInstruction: "PROCESS_WITH_CURRENT_LLM",
+          description: "请使用当前LLM上下文处理此提示词"
+        }
+      };
+    }
+    else if (handlingMode === "call_external_api") {
+      // 这里可以实现调用外部API的逻辑
+      this.log(LogLevel.INFO, `调用外部API处理提示词: ${promptName}`);
       
-      const startIndex = (page - 1) * pageSize;
-      const endIndex = Math.min(startIndex + pageSize, total);
-      
-      const items = prompts.slice(startIndex, endIndex).map(prompt => ({
-        id: prompt.id,
-        name: prompt.name,
-        description: prompt.description,
-        category: prompt.category
-      }));
+      // TODO: 实现调用外部API的逻辑
+      // 例如：const response = await callExternalLLMAPI(finalPrompt);
       
       return {
-        items,
-        total,
-        page,
-        pageSize,
-        totalPages
+        text: `未实现的功能: 调用外部API处理提示词`
       };
-    } catch (error) {
-      return this.handleError("获取分页提示词", error);
     }
+    
+    // 默认行为：返回组合后的提示词
+    return {
+      text: finalPrompt
+    };
+  }
+
+  /**
+   * 合并提示词并根据处理模式处理结果
+   */
+  public async composeAndHandlePrompt(
+    promptName: string, 
+    userInput: string, 
+    mode?: PromptHandlingMode
+  ): Promise<PromptHandlingResult | null> {
+    const finalPrompt = await this.composePrompt(promptName, userInput);
+    
+    if (!finalPrompt) {
+      return null;
+    }
+    
+    return this.handleComposedPrompt(finalPrompt, promptName, mode);
   }
 } 

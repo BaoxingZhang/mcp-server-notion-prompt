@@ -99,6 +99,18 @@ npm run build
 npm test
 ```
 
+## 使用示例
+
+```
+1、请使用get_prompt_by_name工具获取名为"翻译助手"的提示词。
+2、请使用compose_prompt工具，提示词名称为"翻译助手"，用户输入为"Hello, I am learning to use Cursor with MCP."
+3、请使用名为"翻译助手"的提示词翻译以下文本：Hello, I am learning to use Cursor with MCP.
+4、请使用refresh_prompts工具刷新提示词缓存。
+5、调用类别为“七把武器”的提示词，分别输出7个svg卡片，输入内容为：“只看新闻，不讨论~”。
+6、调用类别为“七把武器”的提示词，先分别输出7个svg卡片，然后将7个svg卡片最终整合到一个html中，输入内容为：“只看新闻，不讨论~”。
+
+```
+
 ## 许可证
 
 MIT
