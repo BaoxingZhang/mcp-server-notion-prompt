@@ -47,7 +47,7 @@ export class NotionService {
   private lastCacheTime: number = 0;
   private cacheExpiryTime: number = 5 * 60 * 1000; // 5分钟的缓存过期时间
   private logLevel: LogLevel = LogLevel.INFO;
-  private promptHandlingMode: PromptHandlingMode = "return_only";
+  private promptHandlingMode: PromptHandlingMode = "process_locally";
 
   constructor(apiKey: string, databaseId: string, logLevel?: LogLevel, promptHandlingMode?: PromptHandlingMode) {
     this.notion = new Client({ auth: apiKey });

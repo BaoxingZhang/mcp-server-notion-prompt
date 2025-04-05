@@ -6,267 +6,240 @@
   <title>七把武器 - 只看新闻，不讨论~</title>
   <style>
     body {
-      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      font-family: 'KingHwa_OldSong', serif, 'Microsoft YaHei', sans-serif;
       margin: 0;
       padding: 20px;
-      background-color: #f5f5f5;
+      background-color: #f7f7f7;
     }
     h1 {
       text-align: center;
-      margin-bottom: 30px;
       color: #333;
+      margin-bottom: 30px;
     }
-    .container {
+    .cards-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
-      max-width: 1600px;
-      margin: 0 auto;
+      margin-bottom: 40px;
     }
     .card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
       background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-      transition: transform 0.3s ease;
     }
     .card:hover {
       transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
-      }
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: #666;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1>七把武器 - 只看新闻，不讨论~</h1>
-  <div class="container">
+  <h1>七把武器 - 基于"只看新闻，不讨论~"的思考</h1>
+  
+  <div class="cards-container">
     <!-- 类比之弓 -->
     <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="760" viewBox="0 0 480 760">
-        <rect width="480" height="760" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <svg width="480" height="760" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="750" fill="white" stroke="black" stroke-width="2"/>
         <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">类比之弓 🏹</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
-        <foreignObject x="40" y="90" width="400" height="100">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px; text-align: center;">
-            只看新闻，不讨论~
-          </div>
-        </foreignObject>
-        <foreignObject x="40" y="200" width="400" height="400">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px; text-align: center;">
-            就像观赏展览而不触摸展品，
-            只是吸收信息的海绵，
-            而非参与讨论的活水。
-          </div>
-        </foreignObject>
-        <line x1="30" y1="700" x2="450" y2="700" stroke="#000000" stroke-width="1"/>
-        <text x="240" y="730" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 2024</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="110" font-family="KingHwa_OldSong, serif" font-size="16" width="400">只看新闻，不讨论~</text>
+        
+        <text x="40" y="180" font-family="KingHwa_OldSong, serif" font-size="18">像是一个沉默的观察者，站在舞台边缘，只愿意接收信息，不参与演出。</text>
+        
+        <line x1="30" y1="720" x2="450" y2="720" stroke="black" stroke-width="1"/>
+        <text x="240" y="740" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 2024</text>
       </svg>
     </div>
-
+    
     <!-- 矩阵之网 -->
     <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="640" height="680" viewBox="0 0 640 680">
-        <rect width="640" height="680" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <svg width="640" height="680" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="630" height="670" fill="white" stroke="black" stroke-width="2"/>
         <text x="320" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">矩阵之网</text>
-        <line x1="30" y1="70" x2="610" y2="70" stroke="#000000" stroke-width="1"/>
-        <foreignObject x="40" y="90" width="560" height="100">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px; text-align: center;">
-            只看新闻，不讨论~
-          </div>
-        </foreignObject>
+        <line x1="30" y1="70" x2="610" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="110" font-family="KingHwa_OldSong, serif" font-size="16">只看新闻，不讨论~</text>
         
         <!-- 矩阵图 -->
-        <rect x="120" y="200" width="400" height="400" fill="none" stroke="#000000" stroke-width="2"/>
-        <line x1="120" y1="400" x2="520" y2="400" stroke="#000000" stroke-width="2"/>
-        <line x1="320" y1="200" x2="320" y2="600" stroke="#000000" stroke-width="2"/>
+        <line x1="320" y1="150" x2="320" y2="550" stroke="black" stroke-width="2"/>
+        <line x1="120" y1="350" x2="520" y2="350" stroke="black" stroke-width="2"/>
         
-        <!-- 维度向量 -->
-        <text x="320" y="190" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">信息参与度</text>
-        <text x="530" y="400" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="start">内容类型</text>
+        <!-- 维度标签 -->
+        <text x="320" y="140" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">参与度</text>
+        <text x="320" y="570" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">参与度</text>
+        <text x="100" y="350" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="end">信息获取</text>
+        <text x="540" y="350" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="start">信息获取</text>
         
-        <!-- 象限名称 -->
-        <text x="220" y="300" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">被动信息接收</text>
-        <text x="420" y="300" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">主动信息筛选</text>
-        <text x="220" y="500" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">沉默信息观察</text>
-        <text x="420" y="500" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">选择性信息消费</text>
+        <!-- 象限内容 -->
+        <text x="220" y="250" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">被动消费型</text>
+        <text x="220" y="270" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">只看新闻，不参与讨论</text>
+        <text x="220" y="290" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">信息单向流动</text>
         
-        <!-- 特征 -->
-        <text x="220" y="330" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">接收所有新闻</text>
-        <text x="420" y="330" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">筛选感兴趣新闻</text>
-        <text x="220" y="530" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">避免任何观点表达</text>
-        <text x="420" y="530" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">只读不评论</text>
+        <text x="420" y="250" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">主动获取型</text>
+        <text x="420" y="270" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">主动搜索新闻</text>
+        <text x="420" y="290" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">但不表达观点</text>
         
-        <!-- 标记当前位置 -->
-        <circle cx="420" cy="530" r="10" fill="red" opacity="0.7"/>
+        <text x="220" y="450" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">完全断连型</text>
+        <text x="220" y="470" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">既不看新闻</text>
+        <text x="220" y="490" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">也不参与讨论</text>
         
-        <line x1="30" y1="620" x2="610" y2="620" stroke="#000000" stroke-width="1"/>
-        <text x="320" y="650" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 2024</text>
-      </svg>
-    </div>
-
-    <!-- 定义之矛 -->
-    <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="840" viewBox="0 0 480 840">
-        <rect width="480" height="840" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">定义之矛 𐃆 只看新闻，不讨论~</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
+        <text x="420" y="450" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">交流互动型</text>
+        <text x="420" y="470" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">看新闻并讨论</text>
+        <text x="420" y="490" font-family="KingHwa_OldSong, serif" font-size="12" text-anchor="middle">双向信息交流</text>
         
-        <foreignObject x="40" y="90" width="400" height="700">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px;">
-            <p><strong>通俗理解：</strong>像一个安静的旁观者，只接收信息流，不参与讨论热潮的行为方式。</p>
-            
-            <p><strong>学术定义：</strong>一种单向信息获取行为模式，个体在接收新闻内容的同时，有意识地避免参与相关讨论与互动。</p>
-            
-            <p><strong>核心特征：</strong>INPUT(信息) → SELF ; SELF ≠> OUTPUT(观点)</p>
-            
-            <p><strong>逻辑结构：</strong>
-            1. 信息接收：持续获取新闻内容
-            2. 内部消化：个人认知处理
-            3. 互动抑制：主动避免表达与讨论
-            </p>
-            
-            <p><strong>哲学意义：</strong>在信息洪流中保持自我边界的一种防御机制，既满足了对外部世界的认知需求，又避免卷入可能的情绪与认知消耗。代表了现代社会中普遍存在的信息焦虑与参与疲劳现象。</p>
-            
-            <p><strong>极简示例：</strong>打开新闻APP浏览热点，看完即关，从不点赞评论。</p>
-          </div>
-        </foreignObject>
-      </svg>
-    </div>
-
-    <!-- 视角之镜 -->
-    <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="760" viewBox="0 0 480 760">
-        <rect width="480" height="760" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">视角之镜</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
-        
-        <rect x="40" y="90" width="400" height="60" fill="#f5f5f5" rx="5" ry="5"/>
-        <foreignObject x="50" y="100" width="380" height="50">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px; text-align: center;">
-            只看新闻，不讨论~
-          </div>
-        </foreignObject>
-        
-        <foreignObject x="40" y="170" width="400" height="500">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px;">
-            <p><strong>信息消费视角：</strong></p>
-            <p>新闻不是为了互动而存在，而是为了让你了解世界。将新闻视为纯粹的信息输入渠道，而非社交平台，能大幅提升信息获取效率并降低情绪消耗。</p>
-            
-            <p><strong>心理安全视角：</strong></p>
-            <p>在当今极化的讨论环境中，保持沉默不是退缩，而是一种智慧的自我保护。通过只吸收信息而不参与争论，你创造了一个内心的缓冲区，让思考有空间发酵成熟。</p>
-            
-            <p><strong>切入方案：</strong></p>
-            <p>1. 设置固定的"新闻时段"，比如早晚各15分钟</p>
-            <p>2. 使用纯净的新闻源，屏蔽评论区</p>
-            <p>3. 制定"48小时思考期"——对任何引发强烈情绪的新闻，至少等待48小时再决定是否需要讨论</p>
-          </div>
-        </foreignObject>
-        
-        <line x1="30" y1="700" x2="450" y2="700" stroke="#000000" stroke-width="1"/>
-        <text x="240" y="730" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 2024</text>
-      </svg>
-    </div>
-
-    <!-- 抽象之梯 -->
-    <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="760" viewBox="0 0 480 760">
-        <rect width="480" height="760" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">抽象之梯</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
-        
-        <foreignObject x="40" y="90" width="400" height="80">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong, serif; font-size: 18px; text-align: center;">
-            只看新闻，不讨论~
-          </div>
-        </foreignObject>
-        
-        <foreignObject x="40" y="170" width="400" height="500">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong, serif; font-size: 18px;">
-            <p>他的手指一遍又一遍地划过屏幕，眼睛扫过一条条新闻标题，嘴角偶尔因某个标题而抽动，但当朋友发来消息询问他对最新热点的看法时，他只是轻轻放下手机，抿了一口已经凉了的咖啡，什么也没回复。窗外落日的余晖洒在他面无表情的脸上，映出一种近乎禅意的平静。</p>
-          </div>
-        </foreignObject>
-        
-        <line x1="30" y1="700" x2="450" y2="700" stroke="#000000" stroke-width="1"/>
-        <text x="240" y="730" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 2024</text>
-      </svg>
-    </div>
-
-    <!-- 问题之锤 -->
-    <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="760" viewBox="0 0 480 760">
-        <rect width="480" height="760" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">问题之锤</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
-        
-        <foreignObject x="40" y="90" width="400" height="80">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px; text-align: center;">
-            只看新闻，不讨论~
-          </div>
-        </foreignObject>
-        
-        <foreignObject x="40" y="170" width="400" height="500">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px;">
-            <p><strong>反思追问：</strong></p>
-            <p>1. 为什么我们需要看新闻？</p>
-            <p>2. 讨论的目的是什么？</p>
-            <p>3. 不讨论是逃避还是选择？</p>
-            <p>4. 信息接收与表达之间有何关系？</p>
-            <p>5. 沉默是否也是一种态度表达？</p>
-            
-            <p><strong>困惑深化：</strong></p>
-            <p>1. 观察与参与的边界究竟在哪里？</p>
-            <p>2. 信息消费是否必然导向观点表达？</p>
-            <p>3. 保持沉默的自我究竟是保护还是缺失？</p>
-            
-            <p><strong>第一问题：</strong></p>
-            <p style="font-weight: bold; font-size: 20px; text-align: center; margin-top: 30px;">
-              人类如何在信息与表达之间找到平衡点？
-            </p>
-          </div>
-        </foreignObject>
-        
-        <line x1="30" y1="700" x2="450" y2="700" stroke="#000000" stroke-width="1"/>
-        <text x="240" y="730" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 七把武器之二</text>
-      </svg>
-    </div>
-
-    <!-- 逻辑之刃 -->
-    <div class="card">
-      <svg xmlns="http://www.w3.org/2000/svg" width="480" height="760" viewBox="0 0 480 760">
-        <rect width="480" height="760" fill="#ffffff" stroke="#000000" stroke-width="2"/>
-        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">逻辑之刃</text>
-        <line x1="30" y1="70" x2="450" y2="70" stroke="#000000" stroke-width="1"/>
-        
-        <foreignObject x="40" y="90" width="400" height="580">
-          <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'KingHwa_OldSong', serif; font-size: 18px;">
-            <p><strong>命题A:</strong> 我选择看新闻</p>
-            <p><strong>命题B:</strong> 我选择不讨论</p>
-            <p><strong>命题C:</strong> 获取信息是必要的</p>
-            <p><strong>命题D:</strong> 表达观点会引发争议</p>
-            <p><strong>命题E:</strong> 争议会消耗心理能量</p>
-            
-            <p><strong>逻辑链:</strong></p>
-            <p>1. A ∧ B (我既看新闻又不讨论)</p>
-            <p>2. C → A (因为获取信息必要，所以我看新闻)</p>
-            <p>3. D → E (表达观点引发争议，争议消耗心理能量)</p>
-            <p>4. ¬E → B (我不想消耗心理能量，所以不讨论)</p>
-            
-            <p><strong>新洞察:</strong></p>
-            <p>1. "只看新闻，不讨论"是一种信息获取与心理保护的平衡策略</p>
-            <p>2. 此行为模式隐含了对信息必要性与表达代价的理性权衡</p>
-            <p>3. 沉默并非无态度，而是一种有意识的选择，既满足了认知需求，又避免了情绪消耗</p>
-          </div>
-        </foreignObject>
-        
-        <line x1="30" y1="700" x2="450" y2="700" stroke="#000000" stroke-width="1"/>
-        <text x="240" y="730" font-family="KingHwa_OldSong, serif" font-size="16" text-anchor="middle">李继刚 2024</text>
+        <line x1="30" y1="620" x2="610" y2="620" stroke="black" stroke-width="1"/>
+        <text x="320" y="650" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 2024</text>
       </svg>
     </div>
   </div>
+  
+  <div class="cards-container">
+    <!-- 定义之矛 -->
+    <div class="card">
+      <svg width="480" height="840" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="830" fill="white" stroke="black" stroke-width="2"/>
+        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">定义之矛 𐃆 只看新闻，不讨论~</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="120" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">通俗理解：</text>
+        <text x="40" y="150" font-family="KingHwa_OldSong, serif" font-size="16">像是个旁观者，只吸收信息不表达意见，就像一个路过的听众。</text>
+        
+        <text x="40" y="200" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">学术定义：</text>
+        <text x="40" y="230" font-family="KingHwa_OldSong, serif" font-size="16">单向信息接收行为，其特点是个体仅作为信息接收端，放弃互动与表达权。</text>
+        
+        <text x="40" y="280" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">核心特征：</text>
+        <text x="40" y="310" font-family="KingHwa_OldSong, serif" font-size="16">信息流单向性 + 主体被动性 + 表达缺失性</text>
+        
+        <text x="40" y="360" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">逻辑结构：</text>
+        <text x="40" y="390" font-family="KingHwa_OldSong, serif" font-size="16">由"信息源→接收者"的线性结构，缺乏"接收者→信息源"或"接收者→其他接收者"的反馈回路。</text>
+        
+        <text x="40" y="440" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">哲学意义：</text>
+        <text x="40" y="470" font-family="KingHwa_OldSong, serif" font-size="16">反映了现代信息社会中个体从参与者向旁观者的角色转变，体现了信息过载环境下的一种自我保护机制。</text>
+        
+        <text x="40" y="520" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">极简示例：</text>
+        <text x="40" y="550" font-family="KingHwa_OldSong, serif" font-size="16">如深夜电视前的观众，接收节目内容却不会与电视对话。</text>
+      </svg>
+    </div>
+    
+    <!-- 视角之镜 -->
+    <div class="card">
+      <svg width="480" height="760" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="750" fill="white" stroke="black" stroke-width="2"/>
+        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">视角之镜</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <rect x="40" y="90" width="400" height="60" fill="#f5f5f5" rx="5" ry="5"/>
+        <text x="50" y="130" font-family="KingHwa_OldSong, serif" font-size="16">只看新闻，不讨论~</text>
+        
+        <text x="40" y="200" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">信息消费视角</text>
+        <text x="40" y="230" font-family="KingHwa_OldSong, serif" font-size="16">把新闻看作纯粹的信息输入，而非社交互动的起点。从这个视角看，"只看新闻，不讨论"是将信息获取与情绪表达完全分离的策略。</text>
+        
+        <text x="40" y="300" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">精力管理视角</text>
+        <text x="40" y="330" font-family="KingHwa_OldSong, serif" font-size="16">在信息过载的时代，讨论是一种精力消耗活动。选择只看不讨论，实际上是一种精力保护机制，避免卷入无尽争论的情绪旋涡中。</text>
+        
+        <text x="40" y="400" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">心理安全视角</text>
+        <text x="40" y="430" font-family="KingHwa_OldSong, serif" font-size="16">表达观点会带来暴露和被评判的风险。保持沉默是维护心理安全边界的方式，让自己成为一个不会被言论攻击的"隐形人"。</text>
+        
+        <line x1="30" y1="720" x2="450" y2="720" stroke="black" stroke-width="1"/>
+        <text x="240" y="740" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 2024</text>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="cards-container">
+    <!-- 抽象之梯 -->
+    <div class="card">
+      <svg width="480" height="760" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="750" fill="white" stroke="black" stroke-width="2"/>
+        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">抽象之梯</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="110" font-family="KingHwa_OldSong, serif" font-size="16">只看新闻，不讨论~</text>
+        
+        <text x="40" y="180" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">抽象提炼:</text>
+        <text x="40" y="220" font-family="KingHwa_OldSong, serif" font-size="16">信息单向流动的接收状态；知识获取与表达分离的信息处理模式；观察者姿态下的沉默保护机制。</text>
+        
+        <text x="40" y="290" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold">具象描述:</text>
+        <text x="40" y="330" font-family="KingHwa_OldSong, serif" font-size="16">他蜷在沙发一角，手指不停滑动着屏幕，眼睛快速扫过一条条热点新闻。时而皱眉，时而轻叹，却从不点开评论区，更不在社交媒体上发表只言片语。朋友圈里热议的话题，他全知道，却像个隐形人，从不现身其中。手机是他的窗口，却不是他的喉舌。</text>
+        
+        <line x1="30" y1="720" x2="450" y2="720" stroke="black" stroke-width="1"/>
+        <text x="240" y="740" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 2024</text>
+      </svg>
+    </div>
+    
+    <!-- 问题之锤 -->
+    <div class="card">
+      <svg width="480" height="760" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="750" fill="white" stroke="black" stroke-width="2"/>
+        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">问题之锤</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="110" font-family="KingHwa_OldSong, serif" font-size="16">只看新闻，不讨论~</text>
+        
+        <text x="40" y="160" font-family="KingHwa_OldSong, serif" font-size="16">为什么选择只看不讨论？</text>
+        <text x="40" y="190" font-family="KingHwa_OldSong, serif" font-size="16">讨论会带来什么风险或成本？</text>
+        <text x="40" y="220" font-family="KingHwa_OldSong, serif" font-size="16">单向信息流动能否满足人类社会性需求？</text>
+        <text x="40" y="250" font-family="KingHwa_OldSong, serif" font-size="16">沉默是否等同于中立？</text>
+        <text x="40" y="280" font-family="KingHwa_OldSong, serif" font-size="16">观看而不表达，是接受还是抵抗？</text>
+        
+        <text x="40" y="330" font-family="KingHwa_OldSong, serif" font-size="16" font-weight="bold">深层困惑：</text>
+        <text x="40" y="360" font-family="KingHwa_OldSong, serif" font-size="16">信息接收与表达之间是否必然存在不平衡？</text>
+        <text x="40" y="390" font-family="KingHwa_OldSong, serif" font-size="16">个体与群体叙事如何在信息时代取得平衡？</text>
+        <text x="40" y="420" font-family="KingHwa_OldSong, serif" font-size="16">被动接收是否必然导致认知被塑造？</text>
+        
+        <text x="40" y="480" font-family="KingHwa_OldSong, serif" font-size="18" font-weight="bold" fill="#d32f2f">第一问题：</text>
+        <text x="40" y="520" font-family="KingHwa_OldSong, serif" font-size="16" fill="#d32f2f">在信息爆炸的时代，个体如何在知情与发声之间找到自己的存在位置？</text>
+        
+        <line x1="30" y1="720" x2="450" y2="720" stroke="black" stroke-width="1"/>
+        <text x="240" y="740" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 七把武器之二</text>
+      </svg>
+    </div>
+  </div>
+    
+  <div class="cards-container">
+    <!-- 逻辑之刃 -->
+    <div class="card">
+      <svg width="480" height="760" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="470" height="750" fill="white" stroke="black" stroke-width="2"/>
+        <text x="240" y="50" font-family="KingHwa_OldSong, serif" font-size="24" text-anchor="middle" font-weight="bold">逻辑之刃</text>
+        <line x1="30" y1="70" x2="450" y2="70" stroke="black" stroke-width="1"/>
+        
+        <text x="40" y="120" font-family="KingHwa_OldSong, serif" font-size="16" font-weight="bold">命题提取：</text>
+        <text x="60" y="150" font-family="KingHwa_OldSong, serif" font-size="16">A: 个体只看新闻</text>
+        <text x="60" y="180" font-family="KingHwa_OldSong, serif" font-size="16">B: 个体不参与讨论</text>
+        <text x="60" y="210" font-family="KingHwa_OldSong, serif" font-size="16">C: 个体获取信息</text>
+        <text x="60" y="240" font-family="KingHwa_OldSong, serif" font-size="16">D: 个体表达观点</text>
+        
+        <text x="40" y="290" font-family="KingHwa_OldSong, serif" font-size="16" font-weight="bold">逻辑表达式：</text>
+        <text x="60" y="320" font-family="KingHwa_OldSong, serif" font-size="16">A → C (看新闻必然导致获取信息)</text>
+        <text x="60" y="350" font-family="KingHwa_OldSong, serif" font-size="16">B ⇔ ¬D (不讨论等价于不表达观点)</text>
+        <text x="60" y="380" font-family="KingHwa_OldSong, serif" font-size="16">A ∧ B (既看新闻又不讨论)</text>
+        
+        <text x="40" y="430" font-family="KingHwa_OldSong, serif" font-size="16" font-weight="bold">逻辑推导：</text>
+        <text x="60" y="460" font-family="KingHwa_OldSong, serif" font-size="16">A ∧ B → C ∧ ¬D</text>
+        <text x="60" y="490" font-family="KingHwa_OldSong, serif" font-size="16">由对置律: ¬(C ∧ ¬D) → ¬(A ∧ B)</text>
+        <text x="60" y="520" font-family="KingHwa_OldSong, serif" font-size="16">即: (¬C ∨ D) → (¬A ∨ ¬B)</text>
+        
+        <text x="40" y="570" font-family="KingHwa_OldSong, serif" font-size="16" font-weight="bold">自然语言解读：</text>
+        <text x="60" y="600" font-family="KingHwa_OldSong, serif" font-size="16">一个人选择"只看新闻，不讨论"意味着他获取信息但不表达观点。这反映了信息流单向性，个体成为纯粹的接收者而非参与者。如果一个人不获取信息或开始表达观点，则他已经偏离了"只看新闻，不讨论"的状态。</text>
+        
+        <line x1="30" y1="720" x2="450" y2="720" stroke="black" stroke-width="1"/>
+        <text x="240" y="740" font-family="KingHwa_OldSong, serif" font-size="14" text-anchor="middle">李继刚 2024</text>
+      </svg>
+    </div>
+  </div>
+  
+  <footer>
+    <p>七把武器系列 © 李继刚 2024 | 输入内容："只看新闻，不讨论~"</p>
+  </footer>
 </body>
 </html> 
