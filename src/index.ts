@@ -18,12 +18,12 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { NotionService, Prompt } from "./notion.js";
+import { NotionService, Prompt, PromptInfo } from "./notion.js";
 
 /**
  * 解析命令行参数
  * 
- * 示例：node index.js --notion_api_key=https://flomoapp.com/iwh/xxx/xxx/ --notion_database_id=https://flomoapp.com/iwh/xxx/xxx/
+ * 示例：node index.js --notion_api_key=ntn_2966754545xxx --notion_database_id=1cc6e852d16e80218xxx
 */
 function parseArgs() {
   const args: Record<string, string> = {};
@@ -82,10 +82,7 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   const url = new URL(request.params.uri);
   const id = url.pathname.replace(/^\//, '');
   
-  process.stderr.write(`[MCP] 正在读取提示词 ID: ${id}\n`);
-  
-  const prompts = await notionService.getPrompts();
-  const prompt = prompts.find(p => p.id === id);
+  const prompt = await notionService.findPromptById(id);
   
   if (!prompt) {
     throw new Error(`未找到ID为 ${id} 的提示词`);
@@ -106,6 +103,14 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
+      {
+        name: "list_prompts",
+        description: "列出所有可用的提示词",
+        inputSchema: {
+          type: "object",
+          properties: {}
+        }
+      },
       {
         name: "get_prompt_by_name",
         description: "通过名称获取提示词",
@@ -141,14 +146,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "refresh_prompts",
         description: "刷新提示词缓存",
-        inputSchema: {
-          type: "object",
-          properties: {}
-        }
-      },
-      {
-        name: "list_prompts",
-        description: "列出所有可用的提示词",
         inputSchema: {
           type: "object",
           properties: {}
@@ -198,18 +195,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       
       process.stderr.write(`[MCP] 工具调用: compose_prompt "${promptName}", 用户输入: "${userInput.substring(0, 30)}${userInput.length > 30 ? '...' : ''}"\n`);
       
-      if (!promptName || !userInput) {
-        return {
-          content: [{
-            type: "text",
-            text: "错误: 必须提供提示词名称和用户输入"
-          }]
-        };
-      }
+      const finalPrompt = await notionService.composePrompt(promptName, userInput);
       
-      const prompt = await notionService.findPromptByName(promptName);
-      
-      if (!prompt) {
+      if (!finalPrompt) {
         return {
           content: [{
             type: "text",
@@ -217,11 +205,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           }]
         };
       }
-      
-      // Replace placeholder with user input
-      const finalPrompt = prompt.content.replace('{{USER_INPUT}}', userInput);
-      
-      process.stderr.write(`[MCP] 成功组合提示词，长度: ${finalPrompt.length}字符\n`);
       
       return {
         content: [{
@@ -256,13 +239,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       process.stderr.write(`[MCP] 工具调用: list_prompts\n`);
       
       try {
-        const prompts = await notionService.getPrompts();
-        const promptList = prompts.map(prompt => ({
-          id: prompt.id,
-          name: prompt.name,
-          description: prompt.description,
-          category: prompt.category
-        }));
+        const promptList = await notionService.getPromptList();
         
         return {
           content: [{

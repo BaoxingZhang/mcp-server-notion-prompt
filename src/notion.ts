@@ -9,6 +9,14 @@ export type Prompt = {
   category?: string;
 };
 
+// 简化的提示词信息，用于列表展示
+export type PromptInfo = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+};
+
 export class NotionService {
   private notion: Client;
   private databaseId: string;
@@ -119,7 +127,7 @@ export class NotionService {
   }
 
   /**
-   * Find a prompt by name
+   * 通过名称查找提示词
    */
   async findPromptByName(name: string): Promise<Prompt | null> {
     process.stderr.write(`[MCP] 正在查找提示词: "${name}"\n`);
@@ -134,5 +142,62 @@ export class NotionService {
     
     process.stderr.write(`[MCP] 找到提示词: "${name}"\n`);
     return prompt;
+  }
+  
+  /**
+   * 通过ID查找提示词
+   */
+  async findPromptById(id: string): Promise<Prompt | null> {
+    process.stderr.write(`[MCP] 正在查找提示词 ID: ${id}\n`);
+    
+    const prompts = await this.getPrompts();
+    const prompt = prompts.find(p => p.id === id);
+    
+    if (!prompt) {
+      process.stderr.write(`[MCP] 未找到ID为 ${id} 的提示词\n`);
+      return null;
+    }
+    
+    return prompt;
+  }
+  
+  /**
+   * 将用户输入与提示词模板组合
+   */
+  async composePrompt(promptName: string, userInput: string): Promise<string | null> {
+    if (!promptName || !userInput) {
+      process.stderr.write(`[MCP] 错误: 必须提供提示词名称和用户输入\n`);
+      return null;
+    }
+    
+    const prompt = await this.findPromptByName(promptName);
+    
+    if (!prompt) {
+      return null;
+    }
+    
+    // 替换用户输入到模板中
+    const finalPrompt = prompt.content.replace('{{USER_INPUT}}', userInput);
+    
+    process.stderr.write(`[MCP] 成功组合提示词，长度: ${finalPrompt.length}字符\n`);
+    return finalPrompt;
+  }
+  
+  /**
+   * 获取简化的提示词列表信息
+   */
+  async getPromptList(): Promise<PromptInfo[]> {
+    try {
+      const prompts = await this.getPrompts();
+      return prompts.map(prompt => ({
+        id: prompt.id,
+        name: prompt.name,
+        description: prompt.description,
+        category: prompt.category
+      }));
+    } catch (error) {
+      process.stderr.write(`[MCP] 获取提示词列表时出错: ${error}\n`);
+      throw error;
+    }
   }
 } 
